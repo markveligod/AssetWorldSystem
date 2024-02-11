@@ -17,9 +17,12 @@ enum class ETypeStorageAsset_AWS : uint8
     Particle,
     Niagara,
     Material,
+    StaticMesh,
+    SkeletalMesh,
+    AnimInstance,
 };
 
-struct FStorageAssetData
+struct FStorageAssetData_AWS
 {
     FGameplayTag Tag;
     FSoftObjectPath Path;

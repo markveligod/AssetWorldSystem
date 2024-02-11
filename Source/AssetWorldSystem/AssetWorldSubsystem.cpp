@@ -3,7 +3,10 @@
 
 #include "AssetWorldSubsystem.h"
 #include "GameplayTagsManager.h"
+#include "Blueprint/UserWidget.h"
 #include "Engine/AssetManager.h"
+#include "Particles/ParticleSystem.h"
+#include "NiagaraSystem.h"
 
 #pragma region Default
 
@@ -30,6 +33,7 @@ void UAssetWorldSubsystem::Tick(float DeltaTime)
     const auto AssetWorldSystemShowDataStorage = IConsoleManager::Get().FindConsoleVariable(TEXT("AssetWorldSystem.ShowDataStorage"));
     if (AssetWorldSystemShowDataStorage && AssetWorldSystemShowDataStorage->GetBool() && GEngine && GetWorld() && !GetWorld()->IsNetMode(NM_DedicatedServer))
     {
+        GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, TEXT("--- | | ---"));
         for (auto& Pair : StorageAssets)
         {
             for (auto& Data : Pair.Value)
@@ -40,6 +44,17 @@ void UAssetWorldSubsystem::Tick(float DeltaTime)
             FString StrType = FString::Printf(TEXT("Type: [%s]"), *UEnum::GetValueAsString(Pair.Key));
             GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Orange, StrType);
         }
+        GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, TEXT("--- | | ---"));
+    }
+
+    const auto AssetWorldSystemShowDataValidate = IConsoleManager::Get().FindConsoleVariable(TEXT("AssetWorldSystem.ShowDataValidate"));
+    if (AssetWorldSystemShowDataValidate && AssetWorldSystemShowDataValidate->GetBool() && GEngine && GetWorld() && !GetWorld()->IsNetMode(NM_DedicatedServer))
+    {
+        GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, TEXT("--- | | ---"));
+        const FString NameType = UEnum::GetValueAsString(static_cast<ETypeStorageAsset_AWS>(TargetValidateStorage));
+        const FString Result = FString::Printf(TEXT("TargetValidateStorage: [%i] | NameType: [%s]"), TargetValidateStorage, *NameType);
+        GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Orange, Result);
+        GEngine->AddOnScreenDebugMessage(-1, 0.0f, FColor::Red, TEXT("--- | | ---"));
     }
 
 #endif
@@ -75,10 +90,19 @@ void UAssetWorldSubsystem::Initialize(FSubsystemCollectionBase& Collection)
         LOG_ASSET_WORLD_SYSTEM(Display, "Add Native Gameplay tag: [%s]", *RootName.ToString());
         GameplayTagsManager.AddNativeGameplayTag(RootName);
     }
+
+    if (!IsTemplate() && GetWorld())
+    {
+        GetWorld()->GetTimerManager().SetTimer(ValidateStorageTimerHandle, this, &ThisClass::RegisterValidateStorage, 1.0f, true);
+    }
 }
 
 void UAssetWorldSubsystem::Deinitialize()
 {
+    if (GetWorld())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(ValidateStorageTimerHandle);
+    }
     Super::Deinitialize();
     LOG_ASSET_WORLD_SYSTEM(Display, "Empty StorageAssets");
     StorageAssets.Empty();
@@ -88,14 +112,16 @@ void UAssetWorldSubsystem::Deinitialize()
 
 #pragma region API
 
-bool UAssetWorldSubsystem::RegisterStorageAsset(ETypeStorageAsset_AWS TypeStorage, FGameplayTag Tag, UObject* Asset, bool WithHardRef)
+bool UAssetWorldSubsystem::RegisterStorageAsset(FGameplayTag Tag, UObject* Asset, bool WithHardRef)
 {
     if (CLOG_ASSET_WORLD_SYSTEM(!Tag.IsValid(), "Tag is not valid")) return false;
-    if (CLOG_ASSET_WORLD_SYSTEM(!StorageAssets.Contains(TypeStorage), "Type storage is not valid")) return false;
     if (CLOG_ASSET_WORLD_SYSTEM(Asset == nullptr, "Asset is nullptr")) return false;
+
+    const ETypeStorageAsset_AWS TypeStorage = DetermineTypeObject(Asset);
+    if (CLOG_ASSET_WORLD_SYSTEM(!StorageAssets.Contains(TypeStorage), "Type storage is not valid")) return false;
     if (CLOG_ASSET_WORLD_SYSTEM(FindStorageAsset(TypeStorage, Tag) == Asset, "Asset: [%s] has already been registered", *GetNameSafe(Asset))) return false;
 
-    FStorageAssetData NewData;
+    FStorageAssetData_AWS NewData;
     NewData.Tag = Tag;
     NewData.Path = FSoftObjectPath(Asset);
     NewData.Asset = Asset;
@@ -115,7 +141,7 @@ UObject* UAssetWorldSubsystem::FindStorageAsset(ETypeStorageAsset_AWS TypeStorag
     if (CLOG_ASSET_WORLD_SYSTEM(!StorageAssets.Contains(TypeStorage), "Type storage is not valid")) return nullptr;
     UObject* Object{nullptr};
 
-    const auto* FindElem = StorageAssets[TypeStorage].FindByPredicate([Tag](const FStorageAssetData& Data)
+    const auto* FindElem = StorageAssets[TypeStorage].FindByPredicate([Tag](const FStorageAssetData_AWS& Data)
     {
         return Data.Tag == Tag;
     });
@@ -140,7 +166,7 @@ bool UAssetWorldSubsystem::RemoveStorageAsset(ETypeStorageAsset_AWS TypeStorage,
     if (CLOG_ASSET_WORLD_SYSTEM(!Tag.IsValid(), "Tag is not valid")) return false;
     if (CLOG_ASSET_WORLD_SYSTEM(!StorageAssets.Contains(TypeStorage), "Type storage is not valid")) return false;
 
-    StorageAssets[TypeStorage].RemoveAll([Tag](const FStorageAssetData& Data)
+    StorageAssets[TypeStorage].RemoveAll([Tag](const FStorageAssetData_AWS& Data)
     {
         return Data.Tag == Tag;
     });
@@ -228,6 +254,63 @@ void UAssetWorldSubsystem::AsyncClassLoadingWithCallback(TSoftClassPtr<UObject> 
     StreamableManager.RequestAsyncLoad(Path, FStreamableDelegate::CreateUObject(this, &ThisClass::RegisterAsyncClassCompleted, SoftClass, Callback));
 }
 
+ETypeStorageAsset_AWS UAssetWorldSubsystem::DetermineTypeObject(const UObject* CheckObj)
+{
+    if (!CheckObj) return ETypeStorageAsset_AWS::Object;
+
+    if (CheckObj->IsA(AActor::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::Actor;
+    }
+
+    if (CheckObj->IsA(UUserWidget::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::UserWidget;
+    }
+
+    if (CheckObj->IsA(UTexture::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::Texture;
+    }
+
+    if (CheckObj->IsA(USoundBase::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::Sound;
+    }
+
+    if (CheckObj->IsA(UParticleSystem::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::Particle;
+    }
+
+    if (CheckObj->IsA(UNiagaraSystem::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::Niagara;
+    }
+
+    if (CheckObj->IsA(UMaterialInterface::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::Material;
+    }
+
+    if (CheckObj->IsA(UStaticMesh::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::StaticMesh;
+    }
+
+    if (CheckObj->IsA(USkeletalMesh::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::SkeletalMesh;
+    }
+
+    if (CheckObj->IsA(UAnimInstance::StaticClass()))
+    {
+        return ETypeStorageAsset_AWS::AnimInstance;
+    }
+
+    return ETypeStorageAsset_AWS::Object;
+}
+
 void UAssetWorldSubsystem::RegisterAsyncObjectCompleted(TSoftObjectPtr<UObject> SoftObject)
 {
     LOG_ASSET_WORLD_SYSTEM(Display, "Asset loading complete | Path: [%s] | IsValidObject: [%i]", *SoftObject.ToSoftObjectPath().ToString(), IsValid(SoftObject.Get()));
@@ -251,6 +334,38 @@ void UAssetWorldSubsystem::RegisterAsyncClassCompleted(TSoftClassPtr<UObject> So
 {
     LOG_ASSET_WORLD_SYSTEM(Display, "Asset loading complete | Path: [%s] | IsValidObject: [%i]", *SoftClass.ToSoftObjectPath().ToString(), IsValid(SoftClass.Get()));
     Callback.ExecuteIfBound(SoftClass.Get());
+}
+
+void UAssetWorldSubsystem::RegisterValidateStorage()
+{
+    ETypeStorageAsset_AWS TypeStorage = static_cast<ETypeStorageAsset_AWS>(TargetValidateStorage);
+    if (StorageAssets.Contains(TypeStorage))
+    {
+        TArray<FGameplayTag> OnRemove;
+        for (auto& Data : StorageAssets[TypeStorage])
+        {
+            if (Data.Asset.Get() == nullptr && Data.HardRef.Get() == nullptr)
+            {
+                OnRemove.Add(Data.Tag);
+            }
+        }
+
+        for (auto& Data : OnRemove)
+        {
+            RemoveStorageAsset(TypeStorage, Data);
+        }
+    }
+
+    UEnum* ENUM_TypeStorage = StaticEnum<ETypeStorageAsset_AWS>();
+    if (!ENUM_TypeStorage) return;
+    if (ENUM_TypeStorage->NumEnums() <= TargetValidateStorage + 1)
+    {
+        TargetValidateStorage = 0;
+    }
+    else
+    {
+        ++TargetValidateStorage;
+    }
 }
 
 #pragma endregion

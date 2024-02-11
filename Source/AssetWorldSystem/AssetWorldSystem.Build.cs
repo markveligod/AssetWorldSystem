@@ -23,7 +23,7 @@ public class AssetWorldSystem : ModuleRules
         });
 
         PrivateDependencyModuleNames.AddRange(new string[] {
-            "CoreUObject", "Engine", "Slate", "SlateCore", "GameplayTags"
+            "CoreUObject", "Engine", "Slate", "SlateCore", "GameplayTags", "Niagara", "UMG"
             // ... add private dependencies that you statically link with here ...
         });
 

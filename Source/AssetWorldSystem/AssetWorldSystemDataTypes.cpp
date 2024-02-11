@@ -9,4 +9,7 @@ static TAutoConsoleVariable<bool> EnableD_AssetWorldSystemShowLog(
 static TAutoConsoleVariable<bool> EnableD_AssetWorldSystemShowDataStorage(
     TEXT("AssetWorldSystem.ShowDataStorage"), false, TEXT("AssetWorldSystem.ShowDataStorage [true/false]"), ECVF_Cheat);
 
+static TAutoConsoleVariable<bool> EnableD_AssetWorldSystemShowDataValidate(
+    TEXT("AssetWorldSystem.ShowDataValidate"), false, TEXT("AssetWorldSystem.ShowDataValidate [true/false]"), ECVF_Cheat);
+
 #endif

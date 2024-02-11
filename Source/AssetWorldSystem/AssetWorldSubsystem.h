@@ -44,7 +44,7 @@ public:
 
     /** @public Register an object in the subsystem **/
     UFUNCTION(BlueprintCallable)
-    bool RegisterStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag, UObject* Asset, bool WithHardRef = false);
+    bool RegisterStorageAsset(UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag, UObject* Asset, bool WithHardRef = false);
 
     /** @public Search for a registered object in the subsystem **/
     UFUNCTION(BlueprintCallable)
@@ -57,7 +57,7 @@ public:
     /** @public Synchronous object loading **/
     UFUNCTION(BlueprintPure)
     UObject* SyncObjectLoading(TSoftObjectPtr<UObject> SoftObject);
-    
+
     /** @public Synchronous class loading **/
     UFUNCTION(BlueprintPure)
     TSubclassOf<UObject> SyncClassLoading(TSoftClassPtr<UObject> SoftClass);
@@ -78,18 +78,26 @@ public:
     UFUNCTION(BlueprintCallable)
     void AsyncClassLoadingWithCallback(TSoftClassPtr<UObject> SoftClass, const FAsyncLoadingClassCallbackSignature& Callback);
 
+    /** @public Determine the type of object **/
+    UFUNCTION(BlueprintPure)
+    ETypeStorageAsset_AWS DetermineTypeObject(const UObject* CheckObj);
+
 private:
 
     /** @private **/
     void RegisterAsyncObjectCompleted(TSoftObjectPtr<UObject> SoftObject);
+
     /** @private **/
     void RegisterAsyncObjectCompleted(TSoftObjectPtr<UObject> SoftObject, FAsyncLoadingObjectCallbackSignature Callback);
 
     /** @private **/
     void RegisterAsyncClassCompleted(TSoftClassPtr<UObject> SoftClass);
+
     /** @private **/
     void RegisterAsyncClassCompleted(TSoftClassPtr<UObject> SoftClass, FAsyncLoadingClassCallbackSignature Callback);
 
+    /** @private **/
+    void RegisterValidateStorage();
     
 #pragma endregion
 
@@ -98,7 +106,13 @@ private:
 private:
 
     /** @private To register an object **/
-    TMap<ETypeStorageAsset_AWS, TArray<FStorageAssetData>> StorageAssets;
+    TMap<ETypeStorageAsset_AWS, TArray<FStorageAssetData_AWS>> StorageAssets;
+
+    /** @private **/
+    FTimerHandle ValidateStorageTimerHandle;
+
+    /** @private **/
+    uint8 TargetValidateStorage{0};
 
 #pragma endregion
 
