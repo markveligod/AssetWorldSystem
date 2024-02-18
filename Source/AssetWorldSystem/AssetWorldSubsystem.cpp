@@ -173,7 +173,7 @@ bool UAssetWorldSubsystem::RemoveStorageAsset(ETypeStorageAsset_AWS TypeStorage,
     return true;
 }
 
-UObject* UAssetWorldSubsystem::SyncObjectLoading(TSoftObjectPtr<UObject> SoftObject)
+UObject* UAssetWorldSubsystem::SyncObjectLoading(const TSoftObjectPtr<UObject>& SoftObject)
 {
     if (SoftObject.ToSoftObjectPath().IsValid())
     {
@@ -182,7 +182,23 @@ UObject* UAssetWorldSubsystem::SyncObjectLoading(TSoftObjectPtr<UObject> SoftObj
     return nullptr;
 }
 
-TSubclassOf<UObject> UAssetWorldSubsystem::SyncClassLoading(TSoftClassPtr<UObject> SoftClass)
+TArray<UObject*> UAssetWorldSubsystem::SyncArrayObjectLoading(const TArray<TSoftObjectPtr<UObject>>& ArraySoftObject)
+{
+    TArray<UObject*> Objects;
+
+    for (auto& SoftData : ArraySoftObject)
+    {
+        if (SoftData.ToSoftObjectPath().IsNull()) continue;
+        if (UObject* Object = SoftData.LoadSynchronous())
+        {
+            Objects.Add(Object);
+        }
+    }
+
+    return Objects;
+}
+
+TSubclassOf<UObject> UAssetWorldSubsystem::SyncClassLoading(const TSoftClassPtr<UObject>& SoftClass)
 {
     if (SoftClass.ToSoftObjectPath().IsValid())
     {
@@ -191,9 +207,24 @@ TSubclassOf<UObject> UAssetWorldSubsystem::SyncClassLoading(TSoftClassPtr<UObjec
     return {};
 }
 
+TArray<TSubclassOf<UObject>> UAssetWorldSubsystem::SyncArrayClassLoading(const TArray<TSoftClassPtr<UObject>>& ArraySoftClass)
+{
+    TArray<TSubclassOf<UObject>> Classes;
+
+    for (auto& SoftClass : ArraySoftClass)
+    {
+        if (SoftClass.ToSoftObjectPath().IsNull()) continue;
+        if (UClass* Class = SoftClass.LoadSynchronous())
+        {
+            Classes.Add(Class);
+        }
+    }
+    return Classes;
+}
+
 void UAssetWorldSubsystem::AsyncObjectLoading(TSoftObjectPtr<UObject> SoftObject)
 {
-    UAssetManager* Manager = UAssetManager::GetIfInitialized();
+    const UAssetManager* Manager = UAssetManager::GetIfInitialized();
     if (CLOG_ASSET_WORLD_SYSTEM(Manager == nullptr, "AssetManager is not valid")) return;
     FStreamableManager& StreamableManager = Manager->GetStreamableManager();
     const FSoftObjectPath& Path = SoftObject.ToSoftObjectPath();
@@ -210,7 +241,7 @@ void UAssetWorldSubsystem::AsyncObjectLoading(TSoftObjectPtr<UObject> SoftObject
 void UAssetWorldSubsystem::AsyncObjectLoadingWithCallback(TSoftObjectPtr<UObject> SoftObject,
     const FAsyncLoadingObjectCallbackSignature& Callback)
 {
-    UAssetManager* Manager = UAssetManager::GetIfInitialized();
+    const UAssetManager* Manager = UAssetManager::GetIfInitialized();
     if (CLOG_ASSET_WORLD_SYSTEM(Manager == nullptr, "AssetManager is not valid")) return;
     FStreamableManager& StreamableManager = Manager->GetStreamableManager();
     const FSoftObjectPath& Path = SoftObject.ToSoftObjectPath();
@@ -227,7 +258,7 @@ void UAssetWorldSubsystem::AsyncObjectLoadingWithCallback(TSoftObjectPtr<UObject
 
 void UAssetWorldSubsystem::AsyncClassLoading(TSoftClassPtr<UObject> SoftClass)
 {
-    UAssetManager* Manager = UAssetManager::GetIfInitialized();
+    const UAssetManager* Manager = UAssetManager::GetIfInitialized();
     if (CLOG_ASSET_WORLD_SYSTEM(Manager == nullptr, "AssetManager is not valid")) return;
     FStreamableManager& StreamableManager = Manager->GetStreamableManager();
     const FSoftObjectPath& Path = SoftClass.ToSoftObjectPath();
@@ -244,7 +275,7 @@ void UAssetWorldSubsystem::AsyncClassLoading(TSoftClassPtr<UObject> SoftClass)
 void UAssetWorldSubsystem::AsyncClassLoadingWithCallback(TSoftClassPtr<UObject> SoftClass,
     const FAsyncLoadingClassCallbackSignature& Callback)
 {
-    UAssetManager* Manager = UAssetManager::GetIfInitialized();
+    const UAssetManager* Manager = UAssetManager::GetIfInitialized();
     if (CLOG_ASSET_WORLD_SYSTEM(Manager == nullptr, "AssetManager is not valid")) return;
     FStreamableManager& StreamableManager = Manager->GetStreamableManager();
     const FSoftObjectPath& Path = SoftClass.ToSoftObjectPath();
@@ -356,7 +387,7 @@ void UAssetWorldSubsystem::RegisterValidateStorage()
         }
     }
 
-    UEnum* ENUM_TypeStorage = StaticEnum<ETypeStorageAsset_AWS>();
+    const UEnum* ENUM_TypeStorage = StaticEnum<ETypeStorageAsset_AWS>();
     if (!ENUM_TypeStorage) return;
     if (ENUM_TypeStorage->NumEnums() <= TargetValidateStorage + 1)
     {

@@ -18,7 +18,6 @@ class ASSETWORLDSYSTEM_API UAssetWorldSubsystem : public UTickableWorldSubsystem
 #pragma region Default
 
 public:
-
     /** @public Get Singleton class **/
     static UAssetWorldSubsystem* Get(UWorld* World);
 
@@ -41,7 +40,6 @@ public:
 #pragma region API
 
 public:
-
     /** @public Register an object in the subsystem **/
     UFUNCTION(BlueprintCallable)
     bool RegisterStorageAsset(UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag, UObject* Asset, bool WithHardRef = false);
@@ -55,12 +53,20 @@ public:
     bool RemoveStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
     /** @public Synchronous object loading **/
+    UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "SoftObject"))
+    static UObject* SyncObjectLoading(const TSoftObjectPtr<UObject>& SoftObject);
+
+    /** @public Synchronous array object loading **/
     UFUNCTION(BlueprintPure)
-    UObject* SyncObjectLoading(TSoftObjectPtr<UObject> SoftObject);
+    static TArray<UObject*> SyncArrayObjectLoading(const TArray<TSoftObjectPtr<UObject>>& ArraySoftObject);
 
     /** @public Synchronous class loading **/
+    UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "SoftClass"))
+    static TSubclassOf<UObject> SyncClassLoading(const TSoftClassPtr<UObject>& SoftClass);
+
+    /** @public Synchronous array class loading **/
     UFUNCTION(BlueprintPure)
-    TSubclassOf<UObject> SyncClassLoading(TSoftClassPtr<UObject> SoftClass);
+    static TArray<TSubclassOf<UObject>> SyncArrayClassLoading(const TArray<TSoftClassPtr<UObject>>& ArraySoftClass);
 
     /** @public Asynchronous object loading **/
     UFUNCTION(BlueprintCallable)
@@ -80,25 +86,32 @@ public:
 
     /** @public Determine the type of object **/
     UFUNCTION(BlueprintPure)
-    ETypeStorageAsset_AWS DetermineTypeObject(const UObject* CheckObj);
+    static ETypeStorageAsset_AWS DetermineTypeObject(const UObject* CheckObj);
+
+    /** @public is the timer for checking stored data activated **/
+    UFUNCTION(BlueprintPure)
+    bool IsActiveValidateStorageTimerHandle() const { return GetWorld() ? GetWorld()->GetTimerManager().IsTimerActive(ValidateStorageTimerHandle) : false; }
+
+    /** @public Getting the value of the target iteration check of the stored data **/
+    UFUNCTION(BlueprintPure)
+    uint8 GetTargetValidateStorage() const { return TargetValidateStorage; }
 
 private:
-
-    /** @private **/
+    /** @private Registering the completion of asynchronous object loading **/
     void RegisterAsyncObjectCompleted(TSoftObjectPtr<UObject> SoftObject);
 
-    /** @private **/
+    /** @private Registering the completion of asynchronous object loading **/
     void RegisterAsyncObjectCompleted(TSoftObjectPtr<UObject> SoftObject, FAsyncLoadingObjectCallbackSignature Callback);
 
-    /** @private **/
+    /** @private Registering the completion of asynchronous class loading **/
     void RegisterAsyncClassCompleted(TSoftClassPtr<UObject> SoftClass);
 
-    /** @private **/
+    /** @private Registering the completion of asynchronous class loading **/
     void RegisterAsyncClassCompleted(TSoftClassPtr<UObject> SoftClass, FAsyncLoadingClassCallbackSignature Callback);
 
-    /** @private **/
+    /** @private Checking the validity of stored data **/
     void RegisterValidateStorage();
-    
+
 #pragma endregion
 
 #pragma region Data
@@ -108,10 +121,10 @@ private:
     /** @private To register an object **/
     TMap<ETypeStorageAsset_AWS, TArray<FStorageAssetData_AWS>> StorageAssets;
 
-    /** @private **/
+    /** @private Timer for checking stored data **/
     FTimerHandle ValidateStorageTimerHandle;
 
-    /** @private **/
+    /** @private The value of the target iteration check of the stored data**/
     uint8 TargetValidateStorage{0};
 
 #pragma endregion
@@ -119,15 +132,14 @@ private:
 #pragma region Signature
 
 private:
-
-    /** @private **/
+    /** @private  **/
     UPROPERTY(BlueprintAssignable)
     FAsyncLoadingObjectCompletedSignature OnAsyncLoadingObjectCompleted;
 
     /** @private **/
     UPROPERTY(BlueprintAssignable)
     FAsyncLoadingClassCompletedSignature OnAsyncLoadingClassCompleted;
-    
+
     /** @private **/
     UPROPERTY(BlueprintAssignable)
     FRegisterAssetCompletedSignature OnRegisterAssetCompleted;
@@ -135,7 +147,7 @@ private:
     /** @private **/
     UPROPERTY(BlueprintAssignable)
     FAssetRemovedSignature OnAssetRemoved;
-    
+
 #pragma endregion
-    
+
 };
