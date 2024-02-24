@@ -11,6 +11,7 @@ enum class ETypeStorageAsset_AWS : uint8
 {
     Object,
     Actor,
+    ActorComponent,
     UserWidget,
     Texture,
     Sound,
@@ -31,7 +32,10 @@ struct FStorageAssetData_AWS
 
     FString ToString() const
     {
-        return FString::Printf(TEXT("Tag: [%s] | Path: [%s] | WeakAsset: [%i] | HardRef: [%i]"), *Tag.ToString(), *Path.ToString(), IsValid(Asset.Get()), IsValid(HardRef.Get()));
+        const FString WeakAssetPointer = FString::Printf(TEXT("%p"), Asset.Get());
+        const FString HardRefPointer = FString::Printf(TEXT("%p"), HardRef.Get());
+        return FString::Printf(TEXT("Tag: [%s] | Path: [%s] | WeakAsset: [%i] | HardRef: [%i] | WeakAsset Pointer: [%s] | HardRef Pointer: [%s]"),
+            *Tag.ToString(), *Path.ToString(), IsValid(Asset.Get()), IsValid(HardRef.Get()), *WeakAssetPointer, *HardRefPointer);
     }
 };
 

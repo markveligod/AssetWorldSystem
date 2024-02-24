@@ -48,6 +48,10 @@ public:
     UFUNCTION(BlueprintCallable)
     UObject* FindStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
+    /** @public Search for a registered object in the subsystem **/
+    UFUNCTION(BlueprintCallable)
+    ETypeStorageAsset_AWS GetTypeStorageAsset(UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
+
     /** @public Deleting an object from the storage **/
     UFUNCTION(BlueprintCallable)
     bool RemoveStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
@@ -95,6 +99,13 @@ public:
     /** @public Getting the value of the target iteration check of the stored data **/
     UFUNCTION(BlueprintPure)
     uint8 GetTargetValidateStorage() const { return TargetValidateStorage; }
+
+    /** @public Search for a registered object in the subsystem by value type **/
+    template<typename ValueType>
+    ValueType* FindStorageAssetByType(const ETypeStorageAsset_AWS TypeStorage, const FGameplayTag Tag)
+    {
+        return Cast<ValueType>(FindStorageAsset(TypeStorage, Tag));
+    }
 
 private:
     /** @private Registering the completion of asynchronous object loading **/
