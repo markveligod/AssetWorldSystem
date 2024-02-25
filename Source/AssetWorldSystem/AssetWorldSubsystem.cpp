@@ -135,6 +135,15 @@ void UAssetWorldSubsystem::Deinitialize()
 
 #pragma region API
 
+bool UAssetWorldSubsystem::RegisterStorageAssetStatic(UObject* WorldContextObject, FGameplayTag Tag, UObject* Asset, bool WithHardRef)
+{
+    if (UAssetWorldSubsystem* AssetWorldSubsystem = UAssetWorldSubsystem::GetAssetWorldSubsystemSingleton(WorldContextObject))
+    {
+        return AssetWorldSubsystem->RegisterStorageAsset(Tag, Asset, WithHardRef);
+    }
+    return false;
+}
+
 bool UAssetWorldSubsystem::RegisterStorageAsset(FGameplayTag Tag, UObject* Asset, bool WithHardRef)
 {
     if (CLOG_ASSET_WORLD_SYSTEM(!Tag.IsValid(), "Tag is not valid")) return false;
@@ -156,6 +165,15 @@ bool UAssetWorldSubsystem::RegisterStorageAsset(FGameplayTag Tag, UObject* Asset
     StorageAssets[TypeStorage].Add(NewData);
     OnRegisterAssetCompleted.Broadcast(TypeStorage, Tag, Asset);
     return true;
+}
+
+UObject* UAssetWorldSubsystem::FindStorageAssetStatic(UObject* WorldContextObject, ETypeStorageAsset_AWS TypeStorage, FGameplayTag Tag)
+{
+    if (UAssetWorldSubsystem* AssetWorldSubsystem = UAssetWorldSubsystem::GetAssetWorldSubsystemSingleton(WorldContextObject))
+    {
+        return AssetWorldSubsystem->FindStorageAsset(TypeStorage, Tag);
+    }
+    return nullptr;
 }
 
 UObject* UAssetWorldSubsystem::FindStorageAsset(ETypeStorageAsset_AWS TypeStorage, FGameplayTag Tag)
@@ -184,6 +202,15 @@ UObject* UAssetWorldSubsystem::FindStorageAsset(ETypeStorageAsset_AWS TypeStorag
     return Object;
 }
 
+ETypeStorageAsset_AWS UAssetWorldSubsystem::GetTypeStorageAssetStatic(UObject* WorldContextObject, FGameplayTag Tag)
+{
+    if (UAssetWorldSubsystem* AssetWorldSubsystem = UAssetWorldSubsystem::GetAssetWorldSubsystemSingleton(WorldContextObject))
+    {
+        return AssetWorldSubsystem->GetTypeStorageAsset(Tag);
+    }
+    return ETypeStorageAsset_AWS::Object;
+}
+
 ETypeStorageAsset_AWS UAssetWorldSubsystem::GetTypeStorageAsset(FGameplayTag Tag)
 {
     if (CLOG_ASSET_WORLD_SYSTEM(!Tag.IsValid(), "Tag is not valid")) return ETypeStorageAsset_AWS::Object;
@@ -197,6 +224,15 @@ ETypeStorageAsset_AWS UAssetWorldSubsystem::GetTypeStorageAsset(FGameplayTag Tag
     }
 
     return ETypeStorageAsset_AWS::Object;
+}
+
+bool UAssetWorldSubsystem::RemoveStorageAssetStatic(UObject* WorldContextObject, ETypeStorageAsset_AWS TypeStorage, FGameplayTag Tag)
+{
+    if (UAssetWorldSubsystem* AssetWorldSubsystem = UAssetWorldSubsystem::GetAssetWorldSubsystemSingleton(WorldContextObject))
+    {
+        return AssetWorldSubsystem->RemoveStorageAsset(TypeStorage, Tag);
+    }
+    return false;
 }
 
 bool UAssetWorldSubsystem::RemoveStorageAsset(ETypeStorageAsset_AWS TypeStorage, FGameplayTag Tag)

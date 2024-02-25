@@ -22,7 +22,7 @@ public:
     static UAssetWorldSubsystem* Get(UWorld* World);
 
     /** @public Get Singleton class **/
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem")
     static UAssetWorldSubsystem* GetAssetWorldSubsystemSingleton(UObject* Context);
 
     // FTickableGameObject implementation Begin
@@ -40,64 +40,81 @@ public:
 #pragma region API
 
 public:
+
+    /** @public Register an object in the subsystem STATIC **/
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem", meta = (WorldContext = "WorldContextObject"))
+    static bool RegisterStorageAssetStatic(UObject* WorldContextObject, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag, UObject* Asset, bool WithHardRef = false);
+
     /** @public Register an object in the subsystem **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     bool RegisterStorageAsset(UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag, UObject* Asset, bool WithHardRef = false);
 
+    /** @public Search for a registered object in the subsystem STATIC **/
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem", meta = (WorldContext = "WorldContextObject"))
+    static UObject* FindStorageAssetStatic(UObject* WorldContextObject, ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
+
     /** @public Search for a registered object in the subsystem **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     UObject* FindStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
+    /** @public Search for a registered object in the subsystem STATIC**/
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem", meta = (WorldContext = "WorldContextObject"))
+    static ETypeStorageAsset_AWS GetTypeStorageAssetStatic(UObject* WorldContextObject, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
+    
     /** @public Search for a registered object in the subsystem **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     ETypeStorageAsset_AWS GetTypeStorageAsset(UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
+    /** @public Deleting an object from the storage STATIC**/
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem", meta = (WorldContext = "WorldContextObject"))
+    static bool RemoveStorageAssetStatic(UObject* WorldContextObject, ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
+    
     /** @public Deleting an object from the storage **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     bool RemoveStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
     /** @public Synchronous object loading **/
-    UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "SoftObject"))
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem", meta = (AutoCreateRefTerm = "SoftObject"))
     static UObject* SyncObjectLoading(const TSoftObjectPtr<UObject>& SoftObject);
 
     /** @public Synchronous array object loading **/
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem")
     static TArray<UObject*> SyncArrayObjectLoading(const TArray<TSoftObjectPtr<UObject>>& ArraySoftObject);
 
     /** @public Synchronous class loading **/
-    UFUNCTION(BlueprintPure, meta = (AutoCreateRefTerm = "SoftClass"))
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem", meta = (AutoCreateRefTerm = "SoftClass"))
     static TSubclassOf<UObject> SyncClassLoading(const TSoftClassPtr<UObject>& SoftClass);
 
     /** @public Synchronous array class loading **/
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem")
     static TArray<TSubclassOf<UObject>> SyncArrayClassLoading(const TArray<TSoftClassPtr<UObject>>& ArraySoftClass);
 
     /** @public Asynchronous object loading **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     void AsyncObjectLoading(TSoftObjectPtr<UObject> SoftObject);
 
     /** @public Asynchronous object loading with callback delegate **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     void AsyncObjectLoadingWithCallback(TSoftObjectPtr<UObject> SoftObject, const FAsyncLoadingObjectCallbackSignature& Callback);
 
     /** @public Asynchronous class loading **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     void AsyncClassLoading(TSoftClassPtr<UObject> SoftClass);
 
     /** @public Asynchronous class loading with callback delegate **/
-    UFUNCTION(BlueprintCallable)
+    UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     void AsyncClassLoadingWithCallback(TSoftClassPtr<UObject> SoftClass, const FAsyncLoadingClassCallbackSignature& Callback);
 
     /** @public Determine the type of object **/
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem")
     static ETypeStorageAsset_AWS DetermineTypeObject(const UObject* CheckObj);
 
     /** @public is the timer for checking stored data activated **/
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem")
     bool IsActiveValidateStorageTimerHandle() const { return GetWorld() ? GetWorld()->GetTimerManager().IsTimerActive(ValidateStorageTimerHandle) : false; }
 
     /** @public Getting the value of the target iteration check of the stored data **/
-    UFUNCTION(BlueprintPure)
+    UFUNCTION(BlueprintPure, Category = "UAssetWorldSubsystem")
     uint8 GetTargetValidateStorage() const { return TargetValidateStorage; }
 
     /** @public Search for a registered object in the subsystem by value type **/
