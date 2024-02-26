@@ -57,11 +57,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     UObject* FindStorageAsset(ETypeStorageAsset_AWS TypeStorage, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
-    /** @public Search for a registered object in the subsystem STATIC**/
+    /** @public Getting the type of storage STATIC**/
     UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem", meta = (WorldContext = "WorldContextObject"))
     static ETypeStorageAsset_AWS GetTypeStorageAssetStatic(UObject* WorldContextObject, UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
     
-    /** @public Search for a registered object in the subsystem **/
+    /** @public Getting the type of storage **/
     UFUNCTION(BlueprintCallable, Category = "UAssetWorldSubsystem")
     ETypeStorageAsset_AWS GetTypeStorageAsset(UPARAM(meta=(Categories="AssetWorldSystem"))FGameplayTag Tag);
 
@@ -160,19 +160,19 @@ private:
 #pragma region Signature
 
 private:
-    /** @private  **/
+    /** @private Notification of completion of asynchronous object loading **/
     UPROPERTY(BlueprintAssignable)
     FAsyncLoadingObjectCompletedSignature OnAsyncLoadingObjectCompleted;
 
-    /** @private **/
+    /** @private Notification of completion of asynchronous UClass loading **/
     UPROPERTY(BlueprintAssignable)
     FAsyncLoadingClassCompletedSignature OnAsyncLoadingClassCompleted;
 
-    /** @private **/
+    /** @private Notification of registration of objects in the storage **/
     UPROPERTY(BlueprintAssignable)
     FRegisterAssetCompletedSignature OnRegisterAssetCompleted;
 
-    /** @private **/
+    /** @private Notification on deleting objects from storage **/
     UPROPERTY(BlueprintAssignable)
     FAssetRemovedSignature OnAssetRemoved;
 
