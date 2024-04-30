@@ -8,40 +8,40 @@
 #include "Particles/ParticleSystem.h"
 #include "NiagaraSystem.h"
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterObjectTest, "AssetWorldSystem.RegisterObject",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterObjectTest, "AssetWorldSystem.RegisterObject",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterActorTest, "AssetWorldSystem.RegisterActor",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterActorTest, "AssetWorldSystem.RegisterActor",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterActorComponentTest, "AssetWorldSystem.RegisterActorComponent",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterActorComponentTest, "AssetWorldSystem.RegisterActorComponent",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterUserWidgetTest, "AssetWorldSystem.RegisterUserWidget",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterUserWidgetTest, "AssetWorldSystem.RegisterUserWidget",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterTextureTest, "AssetWorldSystem.RegisterTexture",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterTextureTest, "AssetWorldSystem.RegisterTexture",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterSoundTest, "AssetWorldSystem.RegisterSound",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterSoundTest, "AssetWorldSystem.RegisterSound",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterParticleTest, "AssetWorldSystem.RegisterParticle",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterParticleTest, "AssetWorldSystem.RegisterParticle",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterNiagaraTest, "AssetWorldSystem.RegisterNiagara",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterNiagaraTest, "AssetWorldSystem.RegisterNiagara",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterMaterialTest, "AssetWorldSystem.RegisterMaterial",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterMaterialTest, "AssetWorldSystem.RegisterMaterial",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterStaticMeshTest, "AssetWorldSystem.RegisterStaticMesh",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterStaticMeshTest, "AssetWorldSystem.RegisterStaticMesh",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterSkeletalMeshTest, "AssetWorldSystem.RegisterSkeletalMesh",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterSkeletalMeshTest, "AssetWorldSystem.RegisterSkeletalMesh",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
-IMPLEMENT_SIMPLE_AUTOMATION_TEST(FRegisterAnimInstanceTest, "AssetWorldSystem.RegisterAnimInstance",
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(FAssetWorldSystemRegisterAnimInstanceTest, "AssetWorldSystem.RegisterAnimInstance",
     EAutomationTestFlags::ApplicationContextMask | EAutomationTestFlags::ProductFilter | EAutomationTestFlags::HighPriority)
 
 template<typename Class>
@@ -79,12 +79,12 @@ bool TestObject(FAutomationTestBase* ATB, const FName& RegisterObjectName, EType
     return true;
 }
 
-bool FRegisterObjectTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterObjectTest::RunTest(const FString& Parameters)
 {
     return TestObject<UAWSTestObject>(this, FName(TEXT("AssetWorldSystemTest.RegisterObject")), ETypeStorageAsset_AWS::Object);
 }
 
-bool FRegisterActorTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterActorTest::RunTest(const FString& Parameters)
 {
     UWorld* World = GetTestGameWorld();
     if (!TestNotNull("World is nullptr", World)) return false;
@@ -117,12 +117,12 @@ bool FRegisterActorTest::RunTest(const FString& Parameters)
     return true;
 }
 
-bool FRegisterActorComponentTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterActorComponentTest::RunTest(const FString& Parameters)
 {
     return TestObject<UAWSTestActorComponent>(this, FName(TEXT("AssetWorldSystemTest.RegisterActorComponent")), ETypeStorageAsset_AWS::ActorComponent);
 }
 
-bool FRegisterUserWidgetTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterUserWidgetTest::RunTest(const FString& Parameters)
 {
     UWorld* World = GetTestGameWorld();
     if (!TestNotNull("World is nullptr", World)) return false;
@@ -157,42 +157,42 @@ bool FRegisterUserWidgetTest::RunTest(const FString& Parameters)
     return true;
 }
 
-bool FRegisterTextureTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterTextureTest::RunTest(const FString& Parameters)
 {
     return TestObject<UTexture2D>(this, FName(TEXT("AssetWorldSystemTest.RegisterTexture")), ETypeStorageAsset_AWS::Texture);
 }
 
-bool FRegisterSoundTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterSoundTest::RunTest(const FString& Parameters)
 {
     return TestObject<USoundCue>(this, FName(TEXT("AssetWorldSystemTest.RegisterSound")), ETypeStorageAsset_AWS::Sound);
 }
 
-bool FRegisterParticleTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterParticleTest::RunTest(const FString& Parameters)
 {
     return TestObject<UParticleSystem>(this, FName(TEXT("AssetWorldSystemTest.RegisterParticle")), ETypeStorageAsset_AWS::Particle);
 }
 
-bool FRegisterNiagaraTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterNiagaraTest::RunTest(const FString& Parameters)
 {
     return TestObject<UNiagaraSystem>(this, FName(TEXT("AssetWorldSystemTest.RegisterNiagara")), ETypeStorageAsset_AWS::Niagara);
 }
 
-bool FRegisterMaterialTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterMaterialTest::RunTest(const FString& Parameters)
 {
     return TestObject<UMaterial>(this, FName(TEXT("AssetWorldSystemTest.RegisterMaterial")), ETypeStorageAsset_AWS::Material);
 }
 
-bool FRegisterStaticMeshTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterStaticMeshTest::RunTest(const FString& Parameters)
 {
     return TestObject<UStaticMesh>(this, FName(TEXT("AssetWorldSystemTest.RegisterStaticMesh")), ETypeStorageAsset_AWS::StaticMesh);
 }
 
-bool FRegisterSkeletalMeshTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterSkeletalMeshTest::RunTest(const FString& Parameters)
 {
     return TestObject<USkeletalMesh>(this, FName(TEXT("AssetWorldSystemTest.RegisterSkeletalMesh")), ETypeStorageAsset_AWS::SkeletalMesh);
 }
 
-bool FRegisterAnimInstanceTest::RunTest(const FString& Parameters)
+bool FAssetWorldSystemRegisterAnimInstanceTest::RunTest(const FString& Parameters)
 {
     UWorld* World = GetTestGameWorld();
     if (!TestNotNull("World is nullptr", World)) return false;

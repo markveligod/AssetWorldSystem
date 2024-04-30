@@ -43,13 +43,15 @@ namespace AssetWorldSystemSpace
 {
 inline bool IsLogPrint()
 {
+    const IConsoleVariable* AssetWorldSystemShowLog = IConsoleManager::Get().FindConsoleVariable(TEXT("AssetWorldSystem.ShowLog"));
+    if (AssetWorldSystemShowLog)
+    {
 #if WITH_EDITOR
-    return true;
+        return true;
+#else
+        return AssetWorldSystemShowLog->GetBool();
 #endif
-#if !UE_BUILD_SHIPPING
-    const auto AssetWorldSystemShowLog = IConsoleManager::Get().FindConsoleVariable(TEXT("AssetWorldSystem.ShowLog"));
-    return AssetWorldSystemShowLog ? AssetWorldSystemShowLog->GetBool() : false;
-#endif
+    }
     return false;
 }
 
